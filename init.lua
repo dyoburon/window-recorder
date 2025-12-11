@@ -15,18 +15,21 @@ local function loadPositions()
     if file then
         local content = file:read("*all")
         file:close()
-        local decoded = hs.json.decode(content)
-        if decoded then
-            savedPositions = decoded.positions or {}
-            nextSlot = decoded.nextSlot or 2
-            -- Rebind hotkeys for saved positions
-            for slot, pos in pairs(savedPositions) do
-                hs.hotkey.bind({"cmd", "alt"}, tostring(slot), function()
-                    local w = hs.window.focusedWindow()
-                    if w then
-                        w:setFrame(hs.geometry.rect(pos.x, pos.y, pos.w, pos.h))
-                    end
-                end)
+        if content and content ~= "" then
+            local decoded = hs.json.decode(content)
+            if decoded and decoded.positions then
+                nextSlot = decoded.nextSlot or 2
+                -- Rebind hotkeys for saved positions (keys are strings from JSON)
+                for slot, pos in pairs(decoded.positions) do
+                    local slotNum = tonumber(slot)
+                    savedPositions[slotNum] = pos
+                    hs.hotkey.bind({"cmd", "alt"}, slot, function()
+                        local w = hs.window.focusedWindow()
+                        if w then
+                            w:setFrame(hs.geometry.rect(pos.x, pos.y, pos.w, pos.h))
+                        end
+                    end)
+                end
             end
         end
     end
@@ -34,7 +37,12 @@ end
 
 -- Save positions to file
 local function savePositions()
-    local data = hs.json.encode({positions = savedPositions, nextSlot = nextSlot})
+    -- Convert numeric keys to strings for JSON compatibility
+    local positionsToSave = {}
+    for k, v in pairs(savedPositions) do
+        positionsToSave[tostring(k)] = v
+    end
+    local data = hs.json.encode({positions = positionsToSave, nextSlot = nextSlot}, true)
     local file = io.open(saveFile, "w")
     if file then
         file:write(data)
