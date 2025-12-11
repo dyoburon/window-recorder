@@ -30,7 +30,7 @@ Existing window managers (Rectangle, Magnet, Moom) only offer preset positions. 
 3. Now `Cmd+Option+2` snaps any focused window to that position
 4. Repeat for more positions (slots 3-9)
 
-Positions reset when you reload Hammerspoon.
+Positions are saved to `~/.hammerspoon/window-positions.json` and persist across restarts.
 
 ## Customization
 

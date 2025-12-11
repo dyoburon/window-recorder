@@ -4,8 +4,46 @@
 
 require("hs.ipc")
 
+-- Saved window positions (persisted to file)
 local savedPositions = {}
 local nextSlot = 2
+local saveFile = os.getenv("HOME") .. "/.hammerspoon/window-positions.json"
+
+-- Load saved positions from file
+local function loadPositions()
+    local file = io.open(saveFile, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        local decoded = hs.json.decode(content)
+        if decoded then
+            savedPositions = decoded.positions or {}
+            nextSlot = decoded.nextSlot or 2
+            -- Rebind hotkeys for saved positions
+            for slot, pos in pairs(savedPositions) do
+                hs.hotkey.bind({"cmd", "alt"}, tostring(slot), function()
+                    local w = hs.window.focusedWindow()
+                    if w then
+                        w:setFrame(hs.geometry.rect(pos.x, pos.y, pos.w, pos.h))
+                    end
+                end)
+            end
+        end
+    end
+end
+
+-- Save positions to file
+local function savePositions()
+    local data = hs.json.encode({positions = savedPositions, nextSlot = nextSlot})
+    local file = io.open(saveFile, "w")
+    if file then
+        file:write(data)
+        file:close()
+    end
+end
+
+-- Load on startup
+loadPositions()
 
 -- Preset slot 1 (edit these values to your preference)
 hs.hotkey.bind({"cmd", "alt"}, "1", function()
@@ -43,6 +81,7 @@ hs.hotkey.bind({"cmd", "alt"}, "R", function()
 
     hs.alert.show("Saved to Cmd+Option+" .. slot)
     nextSlot = nextSlot + 1
+    savePositions()  -- Persist to disk
 end)
 
 -- Cmd+Option+0: Show all saved positions
