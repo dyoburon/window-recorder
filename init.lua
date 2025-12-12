@@ -9,6 +9,19 @@ local savedPositions = {}
 local nextSlot = 2
 local saveFile = os.getenv("HOME") .. "/.hammerspoon/window-positions.json"
 
+-- Exit fullscreen if needed, then apply frame
+local function setWindowFrame(win, frame)
+    if win:isFullScreen() then
+        win:setFullScreen(false)
+        -- Wait for fullscreen animation to complete
+        hs.timer.doAfter(0.5, function()
+            win:setFrame(frame)
+        end)
+    else
+        win:setFrame(frame)
+    end
+end
+
 -- Load saved positions from file
 local function loadPositions()
     local file = io.open(saveFile, "r")
@@ -26,7 +39,7 @@ local function loadPositions()
                     hs.hotkey.bind({"cmd", "alt"}, slot, function()
                         local w = hs.window.focusedWindow()
                         if w then
-                            w:setFrame(hs.geometry.rect(pos.x, pos.y, pos.w, pos.h))
+                            setWindowFrame(w, hs.geometry.rect(pos.x, pos.y, pos.w, pos.h))
                         end
                     end)
                 end
@@ -57,7 +70,7 @@ loadPositions()
 hs.hotkey.bind({"cmd", "alt"}, "1", function()
     local win = hs.window.focusedWindow()
     if win then
-        win:setFrame(hs.geometry.rect(100, 100, 800, 600))
+        setWindowFrame(win, hs.geometry.rect(100, 100, 800, 600))
     end
 end)
 
@@ -83,7 +96,7 @@ hs.hotkey.bind({"cmd", "alt"}, "R", function()
         local w = hs.window.focusedWindow()
         if w then
             local pos = savedPositions[slot]
-            w:setFrame(hs.geometry.rect(pos.x, pos.y, pos.w, pos.h))
+            setWindowFrame(w, hs.geometry.rect(pos.x, pos.y, pos.w, pos.h))
         end
     end)
 
