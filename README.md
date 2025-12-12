@@ -22,6 +22,7 @@ Existing window managers (Rectangle, Magnet, Moom) only offer preset positions. 
 | `Cmd+Option+R` | Record current window position to next slot (2-9) |
 | `Cmd+Option+2-9` | Snap window to recorded position |
 | `Cmd+Option+0` | Show all saved positions |
+| `Cmd+Option+.` | Clear all saved positions |
 
 ## Example workflow
 

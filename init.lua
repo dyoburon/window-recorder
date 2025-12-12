@@ -115,3 +115,18 @@ hs.hotkey.bind({"cmd", "alt"}, "0", function()
     end
     hs.alert.show(msg, 3)
 end)
+
+-- Cmd+Option+Period: Clear all saved positions
+hs.hotkey.bind({"cmd", "alt"}, ".", function()
+    savedPositions = {}
+    nextSlot = 2
+    -- Clear the file
+    local file = io.open(saveFile, "w")
+    if file then
+        file:write("")
+        file:close()
+    end
+    hs.alert.show("Cleared all saved positions")
+    -- Reload to unbind old hotkeys
+    hs.reload()
+end)
